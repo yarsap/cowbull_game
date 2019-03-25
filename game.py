@@ -1,3 +1,5 @@
+from constants import DIGITS
+
 def check(guess, target):
     guessed = 0
     placed = 0
@@ -13,8 +15,14 @@ def check(guess, target):
         
 
     def validate_entry(user_input):
+        if len(user_input) != 4:
+            raise
+        
         for i in user_input:
-            if tt_list.count(i) > 1:
+            if user_input.count(i) > 1:
+                raise
+            
+            if i not in DIGITS:
                 raise
             
 

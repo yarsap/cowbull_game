@@ -1,5 +1,3 @@
-#!/usr/bin/env python
-
 import asyncio
 import websockets
 import json
@@ -10,7 +8,7 @@ async def play():
             'ws://localhost:8765') as websocket:
         while True:
             guess = input("Guess the number: ")
-            await websocket.send(guess)
+            await websocket.send(guess.strip())
 
             res = json.loads(await websocket.recv())
 

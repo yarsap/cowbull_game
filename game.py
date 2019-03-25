@@ -11,18 +11,22 @@ def check(guess, target):
             placed+=1
     
     return {'guessed': guessed,
-            'placed': placed}
+            'placed': placed,
+            'finished': guessed == placed == 4,
+            'message': None}
         
 
-    def validate_entry(user_input):
-        if len(user_input) != 4:
-            raise
+def validate_entry(user_input):
+    if len(user_input) != 4:
+        return False
+    
+    for i in user_input:
+        if user_input.count(i) > 1:
+            return False
         
-        for i in user_input:
-            if user_input.count(i) > 1:
-                raise
-            
-            if i not in DIGITS:
-                raise
+        if i not in DIGITS:
+            return False
+    
+    return True
             
 

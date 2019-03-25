@@ -11,10 +11,11 @@ async def play():
             await websocket.send(guess.strip())
 
             res = json.loads(await websocket.recv())
+            if not res['message']:
+                print(f"< Guessed: {res['guessed']}")
+                print(f"< Placed: {res['placed']}")
+            else:
+                print(f"< {res['message']}")
 
-            print(f"< Guessed: {res['guessed']}")
-            print(f"< Placed: {res['placed']}")
-
-# asyncio.get_event_loop().run_until_complete(hello())
 asyncio.get_event_loop().run_until_complete(play())
-# asyncio.get_event_loop().run_forever()
+asyncio.get_event_loop().run_forever()

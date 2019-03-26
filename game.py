@@ -35,8 +35,7 @@ def validate_entry(user_input):
 
 async def play_multi(websocket_pair):
 
-    player_1 = websocket_pair[0]
-    player_2 = websocket_pair[1]
+    player_1, player_2 = websocket_pair
 
     player_numbers = {
         player_1.remote_address[1]: None,
@@ -67,8 +66,8 @@ async def play_multi(websocket_pair):
             print(f"< {guess}")
             if validate_entry(guess):
                 res = check(guess, player_numbers[player.remote_address[1]])
-                guessed = res['finished']
-                if guessed:
+                finished = res['finished']
+                if finished:
                     res['message'] = "Congratulations! You win!"
             
             else:
@@ -83,8 +82,8 @@ async def play_multi(websocket_pair):
 async def play_single(websocket):
     print ("Training mode!")
     number = ''.join(random.sample(DIGITS, 4))
-    guessed = False
-    while not guessed:
+    finished = False
+    while not finished:
         
         print(f"< {number}")
 
@@ -93,8 +92,8 @@ async def play_single(websocket):
         print(f"< {guess}")
         if validate_entry(guess):
             res = check(guess, number)
-            guessed = res['finished']
-            if guessed:
+            finished = res['finished']
+            if finished:
                 res['message'] = "Congratulations! You win!"
         
         else:

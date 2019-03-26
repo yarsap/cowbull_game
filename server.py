@@ -5,8 +5,8 @@ import random
 import game
 
 play_modes = {
-    1: game.play_multi,
-    2: game.play_single
+    '1': game.play_multi,
+    '2': game.play_single
 }
 
 connected = set()
@@ -24,20 +24,22 @@ async def play(websocket, path):
     connected.add(websocket)
 
     print(f"Connected players: {[client.remote_address[1] for client in connected]}")
-    guessed = False
+
     mode = await websocket.recv()
+
     if mode == '1':
         idle_players.add(websocket)
-        await websocket.send("Waiting for other player...")
+
+        websocket.send("Waiting for other player...")
         while len(idle_players) < 2:
-            await asyncio.sleep(10)
+            asyncio.sleep(10)
         else:
             ws = make_match(idle_players)
     else:
         ws = websocket
-    # import pdb; pdb.set_trace()
+
     try:
-        play_modes[mode](ws)
+        await play_modes[mode](ws)
     finally:
         connected.remove(websocket)
 

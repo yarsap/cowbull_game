@@ -1,5 +1,6 @@
 import asyncio
 import json
+import random
 
 from constants import DIGITS
 
@@ -82,6 +83,7 @@ async def play_multi(websocket_pair):
 async def play_single(websocket):
     print ("Training mode!")
     number = ''.join(random.sample(DIGITS, 4))
+    guessed = False
     while not guessed:
         
         print(f"< {number}")

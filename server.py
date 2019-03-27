@@ -13,11 +13,9 @@ connected = set()
 idle_players = set()
 
 def make_match(players_set):
-    player_1 = random.choice(players_set)
-    players_set.remove(player_1)
-    player_2 = random.choice(players_set)
-    players_set.remove(player_2)
-    return (player_1, player_2)
+    players = random.sample(players_set, 2)
+    players_set.remove(players)
+    return players
 
 async def play(websocket, path):
 

@@ -14,35 +14,44 @@ idle_players = set()
 
 def make_match(players_set):
     players = random.sample(players_set, 2)
-    players_set.remove(players)
+    idle_players.difference_update(players)
     return players
 
-async def play(websocket, path):
-
+async def register_connected(websocket):
     connected.add(websocket)
 
-    print(f"Connected players: {[client.remote_address[1] for client in connected]}")
+async def register_idle(websocket):
+    idle_players.add(websocket)
+    # await notify_users()
 
+async def notify_users():
+    if idle_players:
+        message = str(idle_players)
+        await asyncio.wait([user.send(message) for user in idle_players])
+
+async def play(websocket, path):
+    # await register_connected(websocket)
     mode = await websocket.recv()
 
     if mode == '1':
-        idle_players.add(websocket)
-
-        websocket.send("Waiting for other player...")
+        await register_idle(websocket)
+        print(idle_players)
         while len(idle_players) < 2:
-            asyncio.sleep(10)
-        else:
-            ws = make_match(idle_players)
+            await asyncio.sleep(1)
+            websocket.send("Waiting for other player...\n")
+        websocket.send("Match found")
+        ws = make_match(idle_players)
     else:
         ws = websocket
 
     try:
         await play_modes[mode](ws)
     finally:
-        connected.remove(websocket)
+        # connected.remove(websocket)
+        websocket.close()
 
 print ("Hello! I'm a cowbull server!")
-start_server = websockets.serve(play, 'localhost', 8765)
+start_server = websockets.serve(play, 'localhost', 8765, ping_interval=None)
 
 asyncio.get_event_loop().run_until_complete(start_server)
 asyncio.get_event_loop().run_forever()

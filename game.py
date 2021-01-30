@@ -14,24 +14,11 @@ def check(guess, target):
         if digit is target[idx]:
             placed+=1
     
-    return {'guessed': guessed,
-            'placed': placed,
-            'finished': guessed == placed == 4,
-            'message': None}
+    return {"guessed": guessed,
+            "placed": placed,
+            "finished": guessed == placed == 4,
+            "message": None}
         
-
-def validate_entry(user_input):
-    if len(user_input) != 4:
-        return False
-    
-    for i in user_input:
-        if user_input.count(i) > 1:
-            return False
-        
-        if i not in DIGITS:
-            return False
-    
-    return True
 
 async def play_multi(websocket_pair):
 
@@ -42,41 +29,33 @@ async def play_multi(websocket_pair):
         player_2.remote_address[1]: None,
     }
 
-    for player in websocket_pair:
-        await player.send()
-    
-    number_1 = await player_1.recv()
-    number_2 = await player_2.recv()
+    numbers = await asyncio.gather(player_1.recv(), player_2.recv())
+    player_numbers[player_1.remote_address[1]] = numbers[1]
+    player_numbers[player_2.remote_address[1]] = numbers[0]
 
-    # while not validate_entry(number):
-    #     await player.send("Invalid input")
-    #     number = await player.recv()
+    finished = False
+    while not finished:
+        guesses = await asyncio.gather(player_1.recv(), player_2.recv())
 
-    # numbers inversed for easier access in loop
-    player_numbers[player_1.remote_address[1]] = number_2
-    player_numbers[player_2.remote_address[1]] = number_1
-
-
-    while True:
-        for player in websocket_pair:
-            print(f"< {player_numbers[player.remote_address[1]]}")
-
-            guess = await player.recv()
-
-            print(f"< {guess}")
-            if validate_entry(guess):
-                res = check(guess, player_numbers[player.remote_address[1]])
-                finished = res['finished']
-                if finished:
-                    res['message'] = "Congratulations! You win!"
-            
-            else:
-                res = {'message': "Invalid input"}
-            
-            
-            await player.send(json.dumps(res))
-            print(f"> {res}")
-
+        print(f"< {player_1.remote_address[1]} - {guesses[0]}")
+        print(f"< {player_2.remote_address[1]} - {guesses[1]}")
+        res_1 = check(guesses[0], player_numbers[player_1.remote_address[1]])
+        res_2 = check(guesses[1], player_numbers[player_2.remote_address[1]])
+        if res_1["finished"] and res_2["finished"]:
+            res_1["message"] = "You tied!"
+            res_2["message"] = "You tied!"
+            finished = True
+        elif res_1["finished"]:
+            res_1["message"] = "Congratulations! You win!"
+            res_2["message"] = "Sorry, you lose"
+            finished = True
+        elif res_2["finished"]:
+            res_2["message"] = "Congratulations! You win!"
+            res_1["message"] = "Sorry, you lose"
+            finished = True
+        await asyncio.wait([player_1.send(json.dumps(res_1)), player_2.send(json.dumps(res_2))])
+        print(f"> {player_1.remote_address[1]} - {res_1}")
+        print(f"> {player_2.remote_address[1]} - {res_2}")
 
 
 async def play_single(websocket):
@@ -90,15 +69,12 @@ async def play_single(websocket):
         guess = await websocket.recv()
 
         print(f"< {guess}")
-        if validate_entry(guess):
-            res = check(guess, number)
-            finished = res['finished']
-            if finished:
-                res['message'] = "Congratulations! You win!"
         
-        else:
-            res = {'message': "Invalid input"}
+        res = check(guess, number)
+        finished = res["finished"]
+        if finished:
+            res["message"] = "Congratulations! You win!"
         
-        
+          
         await websocket.send(json.dumps(res))
         print(f"> {res}")

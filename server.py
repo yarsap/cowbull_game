@@ -39,7 +39,7 @@ async def play(websocket, path):
         while len(idle_players) < 2:
             await asyncio.sleep(1)
             websocket.send("Waiting for other player...\n")
-        await websocket.send("Match found")
+        websocket.send("Match found")
         ws = make_match(idle_players)
     else:
         ws = websocket

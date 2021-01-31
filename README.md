@@ -29,16 +29,15 @@ Rules
  
  Let's say, if opponent's number is 1345
 
-<code>
+```
 Guess the number: 1234
-</code>
+```
 
 with `1234` input we will get:
-<code>
 
+```
 < Guessed: 3
-
 < Placed: 1
-</code>
+```
  
  which means we guessed [1,3,4], but only [1] is right placed 

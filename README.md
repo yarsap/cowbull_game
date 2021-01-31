@@ -15,12 +15,30 @@ Before run
 Run
 =======================
 
-`python3 server.py`
+`python server.py`
 
 In another terminal
-  `python3 client.py`
+  `python client.py`
   
 Rules
 =======================
  
- Aim is to guess 4-digit (unique digits) number of your opponent. Each guess is followed by a response: how many digits you asked and how many of them on the right place. Let's say, if opponent's number 1345 and we're typed 1234, then it is 3 guessed and 1 placed ( we guessed [1,3,4], but only [1] is right placed ) 
+ Aim is to guess 4-digit (unique digits) number of your opponent. Each guess is followed by a response: how many digits you guessed and how many of them on the right place. 
+ 
+ Example:
+ 
+ Let's say, if opponent's number is 1345
+
+<code>
+Guess the number: 1234
+</code>
+
+with `1234` input we will get:
+<code>
+
+< Guessed: 3
+
+< Placed: 1
+</code>
+ 
+ which means we guessed [1,3,4], but only [1] is right placed 

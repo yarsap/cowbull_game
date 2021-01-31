@@ -30,7 +30,7 @@ async def notify_users():
         await asyncio.wait([user.send(message) for user in idle_players])
 
 async def play(websocket, path):
-    # await register_connected(websocket)
+    await register_connected(websocket)
     mode = await websocket.recv()
 
     if mode == '1':
@@ -39,7 +39,7 @@ async def play(websocket, path):
         while len(idle_players) < 2:
             await asyncio.sleep(1)
             websocket.send("Waiting for other player...\n")
-        websocket.send("Match found")
+        await websocket.send("Match found")
         ws = make_match(idle_players)
     else:
         ws = websocket
@@ -47,9 +47,8 @@ async def play(websocket, path):
     try:
         await play_modes[mode](ws)
     finally:
-        # connected.remove(websocket)
-        websocket.close()
-
+        connected.remove(websocket)
+        
 print ("Hello! I'm a cowbull server!")
 start_server = websockets.serve(play, 'localhost', 8765, ping_interval=None)
 

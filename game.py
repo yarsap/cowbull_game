@@ -2,7 +2,7 @@ import asyncio
 import json
 import random
 
-from constants import DIGITS
+from constants import DIGITS, WIN_MSG, LOSE_MSG, TIE_MSG
 
 def check(guess, target):
     guessed = 0
@@ -42,16 +42,18 @@ async def play_multi(websocket_pair):
         res_1 = check(guesses[0], player_numbers[player_1.remote_address[1]])
         res_2 = check(guesses[1], player_numbers[player_2.remote_address[1]])
         if res_1["finished"] and res_2["finished"]:
-            res_1["message"] = "You tied!"
-            res_2["message"] = "You tied!"
+            res_1["message"] = TIE_MSG
+            res_2["message"] = TIE_MSG
             finished = True
         elif res_1["finished"]:
-            res_1["message"] = "Congratulations! You win!"
-            res_2["message"] = "Sorry, you lose"
+            res_1["message"] = WIN_MSG
+            res_2["message"] = LOSE_MSG
+            res_2["finished"] = True
             finished = True
         elif res_2["finished"]:
-            res_2["message"] = "Congratulations! You win!"
-            res_1["message"] = "Sorry, you lose"
+            res_2["message"] = WIN_MSG
+            res_1["message"] = LOSE_MSG
+            res_1["finished"] = True
             finished = True
         await asyncio.wait([player_1.send(json.dumps(res_1)), player_2.send(json.dumps(res_2))])
         print(f"> {player_1.remote_address[1]} - {res_1}")
@@ -63,18 +65,14 @@ async def play_single(websocket):
     number = ''.join(random.sample(DIGITS, 4))
     finished = False
     while not finished:
-        
         print(f"< {number}")
-
         guess = await websocket.recv()
-
         print(f"< {guess}")
-        
+      
         res = check(guess, number)
         finished = res["finished"]
         if finished:
-            res["message"] = "Congratulations! You win!"
-        
+            res["message"] = WIN_MSG
           
         await websocket.send(json.dumps(res))
         print(f"> {res}")

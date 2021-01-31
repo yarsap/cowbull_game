@@ -20,20 +20,18 @@ def validate_entry(user_input):
 async def play():
     async with websockets.connect(
             'ws://localhost:8765', ping_interval=None) as websocket:
-        finished = False
-        print("1) Play with other player (in development)")
+        print("1) Play with other player")
         print("2) Training mode")
-        mode = input("Choose mode:")
+        mode = input("Choose mode: ")
         await websocket.send(mode.strip())
         if mode == '1':
-            # res = await websocket.recv()
-            # print(f"{res}")
             number = input("Type your number: ")
             while not validate_entry(number):
                 print("Invalid input")
                 number = input("Type your number: ")
             await websocket.send(number.strip())
-        while finished is False:
+        finished = False
+        while not finished:
             guess = input("Guess the number: ")
             await websocket.send(guess.strip())
 
